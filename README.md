@@ -4,7 +4,7 @@ A context-aware, multi-agent AI chatbot that reads your **live Jenkins instance*
 
 **Built by [Jay Guwalani](https://github.com/JayDS22)** as a proof-of-concept for the [AI Chatbot to Guide User Workflow](https://www.jenkins.io/projects/gsoc/2026/project-ideas/ai-chatbot-to-guide-user-workflow/) GSoC 2026 project.
 
-**[Live Demo](https://jenkins-workflow-chatbot.onrender.com)** (runs in demo mode with realistic mock data - no Jenkins needed)
+**[Live Demo](https://web-production-d484f.up.railway.app/)** (runs in demo mode with realistic mock data - no Jenkins needed)
 
 ---
 
