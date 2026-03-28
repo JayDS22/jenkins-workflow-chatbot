@@ -21,35 +21,94 @@ Most Jenkins AI chatbots answer generic questions from documentation. This one *
 | Intent routing | Single prompt for everything | Multi-agent system with specialized agents (troubleshoot / workflow / recommend) |
 | Without Jenkins | Doesn't work | Full demo mode with realistic mock build logs, errors, and plugin data |
 
+
 ## Architecture
 
-```
-                              +------------------+
-                              | Jenkins Instance |
-                              | (live or mock)   |
-                              +--------+---------+
-                                       |
-                            python-jenkins API
-                                       |
-+------------------+          +--------v---------+          +------------------+
-| FAISS Vector     |          |  FastAPI Backend  |          |  Frontend (SPA)  |
-| Store            +<-------->+  (port 8000)      +<-------->+  Markdown render |
-| 20 Jenkins docs  |   RAG    |                   |   SSE    |  Syntax highlight|
-| MiniLM embeddings|          +--------+---------+          |  RAG source cite |
-+------------------+                   |                     +------------------+
-                              +--------v---------+
-                              |  Intent Router   |
-                              |  (LLM classifier)|
-                              +--------+---------+
-                                       |
-                    +------------------+------------------+
-                    |                  |                  |
-             +------v------+   +------v------+   +------v------+
-             | Troubleshoot|   |  Workflow   |   |  Recommend  |
-             |    Agent    |   |    Agent    |   |    Agent    |
-             | Real logs + |   | Plugin-aware|   | Compat check|
-             | error lines |   | step-by-step|   | + install   |
-             +-------------+   +-------------+   +-------------+
+A context-aware, multi-agent system that combines **live Jenkins state** with **retrieval-augmented generation (RAG)** to deliver precise, instance-specific guidance.
+
+### High-Level System Design
+
+```mermaid
+flowchart TD
+    %% Layout direction
+
+    %% ---------- Layers ----------
+    subgraph UI Layer
+        FE[Frontend SPA<br/>Markdown Rendering + SSE Streaming]
+    end
+
+    subgraph API Layer
+        API[FastAPI Backend<br/>Chat API + Streaming]
+        IR[Intent Router<br/>LLM Classifier]
+    end
+
+    subgraph Agent Layer
+        TA[Troubleshoot Agent<br/>Log Analysis]
+        WA[Workflow Agent<br/>Plugin-Aware Guidance]
+        RA[Recommendation Agent<br/>Compatibility Check]
+    end
+
+    subgraph Context Layer
+        JC[Jenkins Context Loader<br/>python-jenkins API]
+        JL[(Build Logs)]
+        JP[(Installed Plugins)]
+        JM[(Job Metadata)]
+    end
+
+    subgraph Knowledge Layer
+        RAG[RAG Engine<br/>FAISS Vector Store]
+        DOC[(Jenkins Documentation)]
+        EMB[(Embeddings Model<br/>MiniLM)]
+    end
+
+    subgraph Deployment Layer
+        DEPLOY[Containerized Deployment<br/>Docker / Render / Railway]
+    end
+
+    %% ---------- Flow ----------
+    FE --> API
+    API --> IR
+
+    IR --> TA
+    IR --> WA
+    IR --> RA
+
+    API --> JC
+    JC --> JL
+    JC --> JP
+    JC --> JM
+
+    API --> RAG
+    RAG --> DOC
+    RAG --> EMB
+
+    TA --> JL
+    WA --> JP
+    RA --> JP
+
+    TA --> RAG
+    WA --> RAG
+    RA --> RAG
+
+    TA --> RES[Response Aggregation]
+    WA --> RES
+    RA --> RES
+
+    RES --> API
+    API --> FE
+
+    API --> DEPLOY
+
+    %% ---------- Styling ----------
+    classDef core fill:#0b132b,color:#ffffff,stroke:#3a86ff,stroke-width:1.5px;
+    classDef agent fill:#1c2541,color:#e0e1dd,stroke:#5bc0be,stroke-width:1px;
+    classDef data fill:#f8f9fa,color:#111,stroke:#adb5bd,stroke-width:1px;
+    classDef infra fill:#edf2fb,color:#111,stroke:#8d99ae,stroke-width:1px;
+
+    class API,IR,RES core
+    class TA,WA,RA agent
+    class JL,JP,JM,DOC,EMB data
+    class FE,DEPLOY infra
 ```
 
 **Tech Stack:**
