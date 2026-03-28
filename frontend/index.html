@@ -289,6 +289,40 @@
         cursor: not-allowed; transform: none; box-shadow: none;
     }
 
+    /* Header action buttons */
+    .header-btn {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 11px; font-weight: 600;
+        padding: 5px 12px; border-radius: 6px;
+        border: 1px solid var(--border); background: var(--bg-elevated);
+        color: var(--text-secondary); cursor: pointer;
+        transition: all 0.15s;
+    }
+    .header-btn:hover {
+        background: var(--accent-glow); border-color: var(--accent);
+        color: var(--text-primary);
+    }
+    .header-btn:first-of-type { margin-left: auto; }
+    .header-btn.refresh { }
+
+    /* Follow-up suggestion chips after bot responses */
+    .suggestions {
+        display: flex; flex-wrap: wrap; gap: 6px;
+        margin-top: 12px; padding-top: 10px;
+        border-top: 1px solid var(--border);
+    }
+    .suggestion {
+        font-size: 11px; padding: 5px 12px;
+        background: var(--bg-deep); border: 1px solid var(--border);
+        border-radius: 16px; color: var(--text-secondary);
+        cursor: pointer; transition: all 0.15s;
+        font-family: 'DM Sans', sans-serif;
+    }
+    .suggestion:hover {
+        background: var(--accent-glow); border-color: var(--accent);
+        color: var(--text-primary); transform: translateY(-1px);
+    }
+
     @media (max-width: 640px) {
         .header { padding: 10px 14px; }
         .ctx-bar { padding: 5px 14px; }
@@ -306,6 +340,8 @@
     <div class="header-logo">J</div>
     <h1>Jenkins Workflow Assistant</h1>
     <span class="badge">PoC v2</span>
+    <button class="header-btn" onclick="newChat()" title="New chat">+ New Chat</button>
+    <button class="header-btn refresh" onclick="location.reload()" title="Refresh">Refresh</button>
     <span class="version-tag">GSoC 2026 // Jay Guwalani</span>
 </div>
 
@@ -509,6 +545,17 @@ function renderBot(el, intent, response, ragSources, timeMs) {
         </div>`;
     }
 
+    // Follow-up suggestions based on the intent of the current response
+    const followUps = getFollowUps(intent);
+    let suggestHtml = '';
+    if (followUps.length > 0) {
+        suggestHtml = `<div class="suggestions">
+            ${followUps.map(f =>
+                `<div class="suggestion" onclick="fillAndSend('${f.query.replace(/'/g, "\\'")}', '${(f.job||'').replace(/'/g, "\\'")}')">${f.label}</div>`
+            ).join('')}
+        </div>`;
+    }
+
     el.innerHTML = `
         <div class="msg-header">
             <span class="intent-tag ${(intent||'general').toLowerCase()}">${intent||'GENERAL'}</span>
@@ -516,12 +563,70 @@ function renderBot(el, intent, response, ragSources, timeMs) {
         </div>
         <div class="response-content">${renderedMd}</div>
         ${ragHtml}
+        ${suggestHtml}
     `;
 
     // Apply syntax highlighting to any code blocks
     el.querySelectorAll('pre code').forEach(block => {
         hljs.highlightElement(block);
     });
+}
+
+function getFollowUps(intent) {
+    // Context-aware follow-up suggestions based on what the user just asked
+    const suggestions = {
+        TROUBLESHOOT: [
+            { label: "How to prevent this?", query: "How can I prevent this build failure from happening again?" },
+            { label: "Check other failures", query: "Show me all my recent build failures" },
+            { label: "Pipeline best practices", query: "What are Jenkins pipeline best practices?" },
+        ],
+        WORKFLOW: [
+            { label: "Docker-based agents", query: "How do I use Docker-based agents in my pipeline?" },
+            { label: "Shared libraries", query: "How do I use shared libraries in Jenkins?" },
+            { label: "Credentials setup", query: "How do I manage credentials in Jenkins pipelines?" },
+        ],
+        RECOMMEND: [
+            { label: "Compare alternatives", query: "What are the alternatives and which should I pick?" },
+            { label: "Security plugins", query: "What security plugins should I install?" },
+            { label: "Monitoring setup", query: "What plugin should I use for monitoring Jenkins?" },
+        ],
+        GENERAL: [
+            { label: "Troubleshoot a build", query: "Why did my build fail?", job: "broken-pipeline" },
+            { label: "Set up pipeline", query: "How do I set up a multibranch pipeline with GitHub webhooks?" },
+            { label: "Plugin recommendation", query: "What plugin should I use for Docker-based agents?" },
+        ],
+    };
+    return suggestions[intent] || suggestions.GENERAL;
+}
+
+function fillAndSend(query, job) {
+    userInput.value = query;
+    if (job) jobInput.value = job;
+    send();
+}
+
+function newChat() {
+    // Clear chat and show welcome screen again
+    chat.innerHTML = '';
+    const w = document.createElement('div');
+    w.className = 'welcome';
+    w.id = 'welcome';
+    w.innerHTML = `
+        <h2>Jenkins Workflow Assistant</h2>
+        <p>I read your actual Jenkins instance and retrieve relevant documentation.
+        Ask me about build failures, workflows, or plugin recommendations.</p>
+        <div class="demo-queries">
+            <div class="demo-q" onclick="fillQ('Why did my build fail?','broken-pipeline')">Why did my build fail?</div>
+            <div class="demo-q" onclick="fillQ('How do I set up a multibranch pipeline with GitHub webhooks?')">Multibranch pipeline setup</div>
+            <div class="demo-q" onclick="fillQ('What plugin should I use for Docker-based agents?')">Docker agent plugin?</div>
+            <div class="demo-q" onclick="fillQ('How do I use shared libraries in Jenkins?')">Shared libraries</div>
+            <div class="demo-q" onclick="fillQ('My npm build is failing with command not found','npm-build')">npm not found error</div>
+            <div class="demo-q" onclick="fillQ('What are Jenkins pipeline best practices?')">Pipeline best practices</div>
+        </div>
+    `;
+    chat.appendChild(w);
+    jobInput.value = '';
+    loadContext();
 }
 
 function addMsg(role, text, isLoading = false) {
