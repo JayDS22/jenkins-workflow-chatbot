@@ -12,6 +12,28 @@ A context-aware, multi-agent AI chatbot that reads your **live Jenkins instance*
 
 Most Jenkins AI chatbots answer generic questions from documentation. This one **reads your actual Jenkins state** AND retrieves relevant docs, giving you answers specific to your setup.
 
+## Screenshots
+
+### Troubleshoot agent diagnosing a real build failure
+![Troubleshoot Demo](docs/images/troubleshoot-response.png)
+
+<details>
+<summary>🖼️ <b>More screenshots (click to expand)</b></summary>
+
+#### Live Jenkins instance with failed build
+![Jenkins](docs/images/jenkins-failed-build.png)
+
+#### Context-aware workflow guidance with Jenkinsfile example  
+![Workflow](docs/images/workflow-response.png)
+
+#### RAG sources cited from Jenkins documentation
+![RAG Sources](docs/images/rag-sources.png)
+
+#### Deployed on Railway (shareable URL)
+![Deployed](docs/images/chatbot-landing.png)
+
+</details>
+
 | Feature | Generic Chatbot | This PoC |
 |---------|----------------|----------|
 | "Why did my build fail?" | Generic debugging tips | Reads your actual build log, extracts error lines, gives a targeted fix |
@@ -175,6 +197,8 @@ docker run -p 8000:8000 -e GROQ_API_KEY=your_key jenkins-chatbot
 | "What plugin for Docker-based agents?" | RECOMMEND | Cross-references your plugins, checks version compatibility |
 | "How do I use shared libraries?" | GENERAL + RAG | Retrieves shared libraries doc, gives practical answer |
 | "Jenkins pipeline best practices" | GENERAL + RAG | Retrieves best practices doc, summarizes key points |
+
+
 
 ## Key Features
 
