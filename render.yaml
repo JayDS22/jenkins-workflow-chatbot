@@ -1,0 +1,19 @@
+# Render.com deployment configuration
+# Deploy for free: connect your GitHub repo at render.com
+# Set GROQ_API_KEY in Render's environment variable settings
+#
+# The chatbot runs in demo mode by default (no Jenkins connection needed)
+# which is perfect for showing mentors a live deployment
+
+services:
+  - type: web
+    name: jenkins-workflow-chatbot
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false  # Set this manually in Render dashboard
+      - key: PYTHONPATH
+        value: /opt/render/project/src
+    plan: free

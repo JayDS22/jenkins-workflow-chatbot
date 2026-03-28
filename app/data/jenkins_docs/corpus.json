@@ -1,0 +1,102 @@
+[
+  {
+    "title": "Getting Started with Jenkins Pipelines",
+    "source": "jenkins.io/doc/book/pipeline",
+    "content": "A Jenkins Pipeline is a suite of plugins that supports implementing and integrating continuous delivery pipelines into Jenkins. Pipeline provides an extensible set of tools for modeling simple-to-complex delivery pipelines as code via the Pipeline DSL. A Jenkinsfile is a text file that contains the definition of a Jenkins Pipeline and is checked into source control. Pipeline supports two syntaxes: Declarative (simplified, opinionated syntax) and Scripted (more flexible, Groovy-based). Declarative Pipeline is the recommended approach for most users."
+  },
+  {
+    "title": "Declarative Pipeline Syntax",
+    "source": "jenkins.io/doc/book/pipeline/syntax",
+    "content": "Declarative Pipeline must be enclosed within a pipeline block. The agent section specifies where the entire Pipeline, or a specific stage, will execute. The stages section contains one or more stage directives. The steps section defines the actual work to be done. The post section defines actions to run at the end of a Pipeline run or stage. Common post conditions include always, success, failure, unstable, changed, and aborted. Environment variables can be set using the environment directive."
+  },
+  {
+    "title": "Pipeline Steps Reference",
+    "source": "jenkins.io/doc/pipeline/steps",
+    "content": "Common pipeline steps include: sh (execute shell command), bat (Windows batch), echo (print message), dir (change directory), checkout (SCM checkout), git (Git checkout), withCredentials (use credentials), timeout (set timeout), retry (retry block), sleep (pause execution), input (wait for user input), parallel (run stages in parallel), stash/unstash (save and restore files), archiveArtifacts (save build artifacts), junit (publish test results), and emailext (send email notifications)."
+  },
+  {
+    "title": "Multibranch Pipeline",
+    "source": "jenkins.io/doc/book/pipeline/multibranch",
+    "content": "The Multibranch Pipeline project type enables you to implement different Jenkinsfiles for different branches of the same project. Jenkins automatically discovers, manages, and executes Pipelines for branches which contain a Jenkinsfile in source control. To create a Multibranch Pipeline: click New Item, select Multibranch Pipeline, configure the Branch Source (Git, GitHub, Bitbucket), set the Jenkinsfile path, and configure scan triggers. Jenkins will scan the repository and create pipeline jobs for each branch containing a Jenkinsfile."
+  },
+  {
+    "title": "Jenkins Credentials Management",
+    "source": "jenkins.io/doc/book/using/using-credentials",
+    "content": "Jenkins credentials are used to authenticate with external services. Credential types include: Username with password, SSH Username with private key, Secret text, Secret file, Certificate, and Docker Host Certificate Authentication. Credentials can be scoped to System (Jenkins internals only), Global (available to all jobs), or specific folders. Use withCredentials step in pipelines to access credentials. Store credentials in Jenkins Credentials store, never hardcode them in Jenkinsfiles. Credentials are managed at Jenkins > Manage Jenkins > Manage Credentials."
+  },
+  {
+    "title": "Jenkins Agent Configuration",
+    "source": "jenkins.io/doc/book/managing/nodes",
+    "content": "Jenkins uses a controller-agent architecture. The controller handles HTTP requests, manages build configurations, and delegates actual build execution to agents. Agents can be permanent (always-on machines) or cloud-based (dynamically provisioned). Agent connection methods include SSH, JNLP (Java Web Start), and inbound agents. Docker agents allow running builds in containers. Configure agents at Manage Jenkins > Manage Nodes and Clouds. The agent directive in Pipeline specifies where to run: agent any, agent none, agent { label 'linux' }, agent { docker 'maven:3.8' }."
+  },
+  {
+    "title": "Jenkins Plugin Management",
+    "source": "jenkins.io/doc/book/managing/plugins",
+    "content": "Plugins extend Jenkins functionality. Install plugins via Manage Jenkins > Manage Plugins > Available tab. Essential plugins include: Git, Pipeline, Blue Ocean, Docker Pipeline, Credentials Binding, Build Timeout, Timestamper, Workspace Cleanup, GitHub Branch Source, and Configuration as Code. Update plugins regularly for security patches. Use the Jenkins Plugin CLI for automation: jenkins-plugin-cli --plugins git workflow-aggregator. Check plugin compatibility with your Jenkins version before installing. Back up Jenkins before major plugin updates."
+  },
+  {
+    "title": "Jenkins Security Best Practices",
+    "source": "jenkins.io/doc/book/security",
+    "content": "Jenkins security essentials: Enable security in Configure Global Security. Use Matrix-based security or Role-Based Access Control (RBAC) for authorization. Never run Jenkins as root. Use HTTPS for the Jenkins URL. Keep Jenkins and plugins updated. Use credentials store instead of hardcoding secrets. Enable CSRF protection. Configure agent-to-controller security. Use the Script Security plugin for Groovy script approval. Audit access logs regularly. Consider using the Configuration as Code plugin for reproducible security configurations."
+  },
+  {
+    "title": "Jenkins Shared Libraries",
+    "source": "jenkins.io/doc/book/pipeline/shared-libraries",
+    "content": "Shared Libraries allow you to define reusable pipeline code that can be shared across multiple Jenkins pipelines. A shared library is defined in a Git repository with a specific directory structure: vars/ for global variables and steps, src/ for Groovy source files, and resources/ for non-Groovy files. Load shared libraries using @Library('my-library') at the top of your Jenkinsfile. Libraries can be configured globally in Manage Jenkins > Configure System > Global Pipeline Libraries, or per-folder. This reduces code duplication and enforces organizational standards across pipelines."
+  },
+  {
+    "title": "Docker in Jenkins Pipelines",
+    "source": "jenkins.io/doc/book/pipeline/docker",
+    "content": "Jenkins integrates with Docker for build isolation and reproducibility. Use the Docker Pipeline plugin to run pipeline stages inside containers. Syntax: agent { docker 'node:18' } runs the stage in a Node.js 18 container. Use docker.build() to build images, docker.image().push() to push to registries. Docker-in-Docker (DinD) or Docker socket mounting is needed for building Docker images inside Jenkins. For Kubernetes-based Jenkins, use the Kubernetes plugin with pod templates for dynamic agent provisioning with containers."
+  },
+  {
+    "title": "Jenkins Blue Ocean",
+    "source": "jenkins.io/doc/book/blueocean",
+    "content": "Blue Ocean is a modern UI for Jenkins that provides pipeline visualization, a visual pipeline editor, personalized dashboard, native GitHub and Bitbucket integration, and better branch and pull request handling. Blue Ocean runs alongside the classic Jenkins UI. Access it via the Open Blue Ocean link in the Jenkins sidebar. While Blue Ocean is no longer actively developed, it remains useful for pipeline visualization. The Jenkins community is working on alternative modern UI approaches."
+  },
+  {
+    "title": "Jenkins Configuration as Code (JCasC)",
+    "source": "jenkins.io/doc/book/managing/casc",
+    "content": "Configuration as Code (JCasC) allows you to define the entire Jenkins configuration in YAML files. This enables version-controlled, reproducible Jenkins setups. JCasC configures: security settings, credentials, tool installations, plugin configurations, agent definitions, and more. Place a jenkins.yaml file in $JENKINS_HOME or specify with CASC_JENKINS_CONFIG environment variable. This eliminates manual configuration through the UI and supports GitOps workflows for Jenkins administration."
+  },
+  {
+    "title": "Common Jenkins Build Failures and Solutions",
+    "source": "jenkins.io/doc/book/troubleshooting",
+    "content": "Common build failures: 1) 'Permission denied' - check file permissions and Jenkins user. 2) 'Command not found' - tool not installed on agent, use tool installers or Docker agents. 3) 'Out of memory' - increase JVM heap with JAVA_OPTS=-Xmx2g. 4) 'SCM checkout timeout' - network issues or large repos, increase timeout or use shallow clone. 5) 'Workspace locked' - concurrent build conflict, use disableConcurrentBuilds(). 6) 'Script approval needed' - approve scripts in Manage Jenkins > In-process Script Approval. 7) 'Agent offline' - check agent connectivity and logs."
+  },
+  {
+    "title": "Jenkins Webhooks and Triggers",
+    "source": "jenkins.io/doc/book/pipeline/triggers",
+    "content": "Jenkins supports multiple build triggers: SCM polling (checks for changes on a schedule), Webhooks (GitHub/GitLab push notifications), Cron-like scheduling (triggers section with cron syntax), Upstream triggers (triggered by other jobs), and the Generic Webhook Trigger plugin. For GitHub webhooks: go to your repo Settings > Webhooks > Add webhook, set the Payload URL to https://your-jenkins/github-webhook/, Content type to application/json, and select events. Install the GitHub plugin on Jenkins. Webhooks are more efficient than polling."
+  },
+  {
+    "title": "Jenkins Pipeline Best Practices",
+    "source": "jenkins.io/doc/book/pipeline/best-practices",
+    "content": "Best practices for Jenkins pipelines: 1) Keep Jenkinsfiles short and readable. 2) Use Declarative syntax unless you need Scripted flexibility. 3) Use shared libraries for reusable code. 4) Use credentials binding for secrets, never hardcode. 5) Set timeouts on stages to prevent hung builds. 6) Use stash/unstash or artifacts for passing data between stages. 7) Run independent stages in parallel. 8) Use agent per stage when stages need different environments. 9) Add post sections for cleanup and notifications. 10) Version your Jenkinsfile with your code."
+  },
+  {
+    "title": "Jenkins Backup and Restore",
+    "source": "jenkins.io/doc/book/system-administration/backing-up",
+    "content": "Back up Jenkins regularly to prevent data loss. Critical files to back up: $JENKINS_HOME/config.xml (global config), $JENKINS_HOME/jobs/ (job configs and build history), $JENKINS_HOME/users/ (user accounts), $JENKINS_HOME/secrets/ (encryption keys), $JENKINS_HOME/plugins/ (installed plugins), and $JENKINS_HOME/credentials.xml. Use the ThinBackup plugin for automated backups. For disaster recovery, consider using JCasC (Configuration as Code) to recreate Jenkins configuration from YAML files stored in version control."
+  },
+  {
+    "title": "Jenkins Monitoring and Performance",
+    "source": "jenkins.io/doc/book/system-administration/monitoring",
+    "content": "Monitor Jenkins health with: the built-in Monitoring plugin (CPU, memory, threads), Prometheus + Grafana integration via the Prometheus Metrics plugin, the Jenkins Metrics plugin for JMX metrics, and the Build Monitor View for build status dashboards. Performance tips: increase controller memory (JAVA_OPTS=-Xmx4g), offload builds to agents, limit concurrent builds, clean old builds and workspaces regularly, optimize plugin list (remove unused plugins), and use Pipeline Durability settings to reduce I/O overhead."
+  },
+  {
+    "title": "Jenkinsfile Examples",
+    "source": "jenkins.io/doc/pipeline/examples",
+    "content": "Example 1 - Basic Pipeline: pipeline { agent any; stages { stage('Build') { steps { sh 'make' } } stage('Test') { steps { sh 'make test' } } stage('Deploy') { steps { sh 'make deploy' } } } }. Example 2 - Docker Agent: pipeline { agent { docker 'maven:3.8' } stages { stage('Build') { steps { sh 'mvn clean package' } } } }. Example 3 - Parallel Stages: pipeline { agent any; stages { stage('Tests') { parallel { stage('Unit') { steps { sh 'npm test' } } stage('Integration') { steps { sh 'npm run test:integration' } } } } } }."
+  },
+  {
+    "title": "Jenkins Environment Variables",
+    "source": "jenkins.io/doc/book/pipeline/environment",
+    "content": "Jenkins provides built-in environment variables: BUILD_NUMBER, BUILD_ID, BUILD_URL, JOB_NAME, WORKSPACE, JENKINS_URL, NODE_NAME, and GIT_COMMIT (when using Git). Set custom variables using the environment directive: environment { MY_VAR = 'value'; CREDS = credentials('my-cred-id') }. Access variables with ${env.MY_VAR} in Groovy or $MY_VAR in shell steps. Use the withEnv step for temporary variable overrides. The credentials() helper in the environment directive automatically handles credential types."
+  },
+  {
+    "title": "Jenkins Error: Script not yet approved",
+    "source": "community.jenkins.io/common-issues",
+    "content": "The 'Scripts not permitted to use' or 'Script not yet approved' error occurs when Groovy scripts use methods not yet allowed by the Script Security plugin. Fix: Go to Manage Jenkins > In-process Script Approval and approve the pending script. Alternatively, use the @NonCPS annotation for methods that don't need CPS transformation, or move complex logic to a Shared Library with trusted code. In Declarative Pipelines, most common steps are pre-approved. This error is common when using Scripted Pipeline or calling Java methods directly."
+  }
+]
